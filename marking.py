@@ -172,7 +172,7 @@ def drawLineToPoint( img, to ):
     absb = math.sqrt( vecb[0]*vecb[0] + vecb[1]*vecb[1] )
     cosX = adotb / absb
     X = math.acos(cosX)
-    deg = 3.15 / math.pi * 180
+    deg = X / math.pi * 180
     normalDeg = deg if deg < 180 else deg-360
     return math.round( normalDeg )
 

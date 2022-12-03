@@ -164,9 +164,10 @@ def drawLineToPoint( img, to ):
     veca = (0,1)
     vecb = (to[0] - midBottomPos[0], to[1] - midBottomPos[1] )
     adotb = veca[0]*vecb[0] + veca[1]*vecb[1]
-    absb = sqrt( vecb[0]*vecb[0] + vecb[1]*vecb[1] )
+    absb = math.sqrt( vecb[0]*vecb[0] + vecb[1]*vecb[1] )
     cosX = adotb / absb
-    return acos(cosX)
+    X = math.acos(cosX)
+    return X
     
         
 def test():

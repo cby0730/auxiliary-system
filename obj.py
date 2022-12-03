@@ -169,6 +169,7 @@ def obj() :
           image_pil.save('traffic_light.jpg')
           state = dtl.detect_traffic_light( 'traffic_light.jpg' )
           print(state)
+          say( 'go' if state == 'green' else 'stop' )
           marking.drawAndSave( "%s_pred.png"%(sys.argv[1].split('.')[0]), state )
           return
           

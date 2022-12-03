@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
-import sys
+import sys, math
 from queue import Queue
 
 targetColors = [(0,0,192)]
@@ -15,6 +15,7 @@ def drawCenter(img):
     pix = img.load()
     w,h = img.size
     vis = [[False for i in range(h)] for j in range(w) ]
+    centerPos = []
     for i in range(w):
         for j in range(h):
             if vis[i][j]: continue;
@@ -23,6 +24,8 @@ def drawCenter(img):
                 pos, area = calcCenterPos( img, (i,j), vis )
                 if area >= thresholdPixel:
                     drawCircle( img, pos, circleRadius, centerColors[t] )
+                    centerPos.append( pos )
+    return centerPos
 
 def drawCircle(img, pos, radius, color ):
     w,h = img.size
@@ -93,7 +96,7 @@ def drawArrow(img, angle):
 
 
 fontSize = 24
-def drawInfo( img, dist, name, turn, ori, is_walkable, traffic_light ):
+def drawInfo( img, dist, name, turn, ori, is_walkable, traffic_light, pointAngle ):
 
     draw = ImageDraw.Draw( img )
     font = ImageFont.truetype( 'TaipeiSansTCBeta-Regular.ttf', fontSize )
@@ -122,6 +125,9 @@ def drawInfo( img, dist, name, turn, ori, is_walkable, traffic_light ):
         draw.text( (5,105), "You are not in sidewalk area", font = font, align = 'left' )
     
     draw.text( (5,130), "Traffic light : %s"%traffic_light, font = font, align = 'left' )
+    
+    if pointAngle != None:
+        draw.text( (5, 100 ), "Angle to next sidewalk point: {}".format(pointAngle), font = font, align = 'left' )
 
 import read_txt as rt
 import cv2
@@ -129,7 +135,7 @@ import cv2
 def drawAndSave(pic, traffic_light):
     img = Image.open(pic).convert('RGB')
     is_walkable = judgeFloor(img)
-    drawCenter( img )
+    centerPos = drawCenter( img )
 
     dist, name, angel, ori, turn = rt.Recent_info() #read navigation informations
     
@@ -138,12 +144,34 @@ def drawAndSave(pic, traffic_light):
     else :
         drawArrow(img, 0)
 
-    drawInfo( img, dist, name, turn, ori, is_walkable, traffic_light )
+    pointAngle = None
+    if centerPos: pointAngle = drawLineToPoint( img, centerPos[-1] )
+    
+    drawInfo( img, dist, name, turn, ori, is_walkable, traffic_light, pointAngle )
     img.save("%s_marked.png"%pic.split('.')[0])
-                 
+    
+
+def drawLineToPoint( img, to ):
+    id = ImageDraw.Draw( img )
+    w,h = img.size
+    lineWidth = 5;
+    midBottomPos = ( w//2, h )
+    if( to[0] * 2 < w ): 
+        id.line((to, midBottomPos), width=lineWidth, fill=centerColors[0] )
+    else: 
+        id.line((midBottomPos,to),width=lineWidth,fill=centerColors[0]) 
+    
+    veca = (0,1)
+    vecb = (to[0] - midBottomPos[0], to[1] - midBottomPos[1] )
+    adotb = veca[0]*vecb[0] + veca[1]*vecb[1]
+    absb = sqrt( vecb[0]*vecb[0] + vecb[1]*vecb[1] )
+    cosX = adotb / absb
+    return acos(cosX)
+    
         
 def test():
     drawAndSave( sys.argv[1], "g" )
+
 
 if __name__ == '__main__':
     test()

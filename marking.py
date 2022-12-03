@@ -127,7 +127,7 @@ def drawInfo( img, dist, name, turn, ori, is_walkable, traffic_light, pointAngle
     draw.text( (5,130), "Traffic light : %s"%traffic_light, font = font, align = 'left' )
     
     if pointAngle != None:
-        draw.text( (5, 100 ), "Angle to next sidewalk point: {}".format(pointAngle), font = font, align = 'left' )
+        draw.text( (5, 155 ), "Angle to next sidewalk point: {}".format(pointAngle), font = font, align = 'left' )
 
 import read_txt as rt
 import cv2
@@ -161,13 +161,16 @@ def drawLineToPoint( img, to ):
     else: 
         id.line((midBottomPos,to),width=lineWidth,fill=centerColors[0]) 
     
-    veca = (0,1)
+    veca = (0,-1)
     vecb = (to[0] - midBottomPos[0], to[1] - midBottomPos[1] )
     adotb = veca[0]*vecb[0] + veca[1]*vecb[1]
     absb = math.sqrt( vecb[0]*vecb[0] + vecb[1]*vecb[1] )
     cosX = adotb / absb
     X = math.acos(cosX)
-    return X
+    deg = 3.15 / math.pi * 180
+    normalDeg = deg if deg < 180 else deg-360
+    print( adotb, absb, cosX, X, normalDeg )
+    return normalDeg
     
         
 def test():
